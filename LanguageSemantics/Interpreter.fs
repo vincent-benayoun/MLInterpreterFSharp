@@ -12,6 +12,7 @@ module Return =
         | _ -> RuntimeError
 
     let Integer n = Success(Value.Integer n)
+    let Boolean b = Success(Value.Boolean b)
 
 open AST
 
@@ -25,6 +26,12 @@ let operationOfOperator operator =
     | Minus -> fun x y -> Return.Integer (x - y)
     | Multiply -> fun x y -> Return.Integer (x * y)
     | Divide -> fun x y -> if y = 0 then Return.RuntimeError else Return.Integer (x / y)
+    | Equals -> fun x y -> if x = y then Return.Boolean(true) else Return.Boolean(false)
+    | NotEquals -> fun x y -> if x = y then Return.Boolean(false) else Return.Boolean(true)
+    | GreaterThan -> fun x y -> if x > y then Return.Boolean(true) else Return.Boolean(false)
+    | GreaterThanOrEquals -> fun x y -> if x >= y then Return.Boolean(true) else Return.Boolean(false)
+    | LessThan -> fun x y -> if x < y then Return.Boolean(true) else Return.Boolean(false)
+    | LessThanOrEquals -> fun x y -> if x <= y then Return.Boolean(true) else Return.Boolean(false)
     |> Return.bind2Integer
 
 let rec eval environment expression =
@@ -48,3 +55,12 @@ let rec eval environment expression =
         match Map.tryFind identifier environment with
         | Some value -> Return.Success value
         | None -> Return.RuntimeError
+    | IfExpr(condition, trueExpr, falseExpr) ->
+        let conditionVal = eval environment condition
+        match conditionVal with
+        | Return.Success (Value.Boolean(true)) ->
+            eval environment trueExpr
+        | Return.Success (Value.Boolean(false)) ->
+            eval environment falseExpr
+        | _ -> Return.RuntimeError
+

@@ -5,6 +5,12 @@ type operator =
     | Minus
     | Multiply
     | Divide
+    | Equals
+    | NotEquals
+    | GreaterThan
+    | GreaterThanOrEquals
+    | LessThan
+    | LessThanOrEquals
 
 type expression =
     | IntegerLiteral of int
@@ -12,3 +18,4 @@ type expression =
     | Function of string * expression
     | Identifier of string
     | FunctionCall of expression * expression
+    | IfExpr of expression * expression * expression
